@@ -1,0 +1,6 @@
+telegram:
+  - id: "bugshunting"
+    telegram_api_key: "6812973592:AAEWJKFg91ONACdN3OXIb9xM5Nl6nN3dOzk"
+    telegram_chat_id: "1284197134"
+    telegram_format: "{{data}}"
+    telegram_parsemode: "Markdown" 

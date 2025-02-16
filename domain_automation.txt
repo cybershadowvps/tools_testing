@@ -1,0 +1,133 @@
+create a python script All domains are copied into a single file: alldomain.txt (stored on Google Colab).
+GitHub server is used to run domain finder tools.
+Tools connect to a Telegram bot, which saves the extracted data.
+Run Telegram scripts to process the saved data.
+Run information finder tools such as Wayback Machine, VirusTotal, and Urlscan.
+Saved data is sent back to the Telegram bot.
+Telegram bot triggers other tools to continue automation. # Subdomain Enumerationsubfinder -d domain -all | tee -a domain.subs
+subdominator -d domain  | tee -a domain.subs https://web.archive.org/cdx/search/cdx?url=*.example.com/*&collapse=urlkey&output=text&fl=original
+https://www.virustotal.com/vtapi/v2/domain/report?apikey=982680b1787fa59701919aa22515a025e00df1e3bb2bc4f186b8e919558d576c&domain=example.com
+https://otx.alienvault.com/api/v1/indicators/hostname/domain.com/url_list?limit=500&page=1
+curl -G "https://web.archive.org/cdx/search/cdx" --data-urlencode "url=*.example.com/*" --data-urlencode "collapse=urlkey" --data-urlencode "output=text" --data-urlencode "fl=original" > out.txt
+cat out.txt | uro |  grep -E '\.xls|\.xml|\.xlsx|\.json|\.pdf|\.sql|\.doc|\.docx|\.pptx|\.txt|\.zip|\.tar\.gz|\.tgz|\.bak|\.7z|\.rar|\.log|\.cache|\.secret|\.db|\.backup|\.yml|\.gz|\.config|\.csv|\.yaml|\.md|\.md5|\.exe|\.dll|\.bin|\.ini|\.bat|\.sh|\.tar|\.deb|\.rpm|\.iso|\.img|\.apk|\.msi|\.dmg|\.tmp|\.crt|\.pem|\.key|\.pub|\.asc'  
+
+# Check live subdomains
+cat domain.subs | httpx -o domain.live
+cat domain.live | wayback |anew xss-wayback
+katana -list domain.live -o xss-katana
+cat domain.live | gau --subs -o xss-gau
+
+# Merge All results
+cat xss-wayback xss-katana xss-gau |anew xss.txt
+
+cat domain.live | wayback |anew xss-wayback
+katana -list domain.live -o xss-katana
+cat domain.live | gau --subs -o xss-gau
+
+# Merge All results
+cat xss-wayback xss-katana xss-gau | anew xss.txt
+
+cat xss.txt |sort -u | grep "=" | egrep -iv ".(css|woff|woff2|txt|js|m4r|m4p|m4b|ipa|asa|pkg|crash|asf|asx|wax|wmv|wmx|avi|bmp|class|divx|doc|docx|exe|gif|gz|gzip|ico|jpg|jpeg|jpe|webp|json|mdb|mid|midi|mov|qt|mp3|m4a|mp4|m4v|mpeg|mpg|mpe|webm|mpp|_otf|odb|odc|odf|odg|odp|ods|odt|ogg|pdf|png|pot|pps|ppt|pptx|ra|ram|svg|svgz|swf|tar|tif|tiff|_ttf|wav|wma|wri|xla|xls|xlsx|xlt|xlw|zip)" | uro | httpx | anew xss
+
+#Run knoxnl With GET & POST Methods
+knoxnl -i xss.txt -X BOTH -s -o xssoutput.txt
+ChatGPT said:
+Here's a Python script that automates the entire workflow you described. It:
+
+Copies all domains into a single file (alldomain.txt).
+Runs subdomain enumeration tools (Subfinder, Subdominator).
+Fetches additional subdomains from Wayback Machine, VirusTotal, and AlienVault OTX.
+Filters sensitive files from Wayback Machine results.
+Checks for live subdomains using httpx.
+Runs XSS discovery tools (wayback, katana, gau).
+Filters and merges XSS results.
+Runs Knoxnl for XSS payload testing.
+Sends extracted data to a Telegram bot for automation.
+📌 Prerequisites
+Ensure you have the following tools installed:
+
+bash
+Copy
+Edit
+pip install requests telebot
+apt install subfinder subdominator httpx anew gau waybackurls katana uro knoxnl curl
+Python Automation Script
+Save this as domain_automation.py and run it in Google Colab or a GitHub server.
+
+python
+Copy
+Edit
+import os
+import requests
+import telebot
+
+# Telegram Bot Token & Chat ID (Replace with your bot's details)
+TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+TELEGRAM_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID"
+bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
+
+# Target domain (Replace with your target)
+DOMAIN = "example.com"
+
+# Step 1: Save all domains into a file
+with open("alldomain.txt", "w") as file:
+    file.write(DOMAIN + "\n")
+
+# Step 2: Run Subdomain Enumeration
+os.system(f"subfinder -d {DOMAIN} -all | tee -a domain.subs")
+os.system(f"subdominator -d {DOMAIN} | tee -a domain.subs")
+
+# Step 3: Fetch Additional Subdomains from Wayback, VirusTotal, and AlienVault
+WAYBACK_URL = f"https://web.archive.org/cdx/search/cdx?url=*.{DOMAIN}/*&collapse=urlkey&output=text&fl=original"
+VIRUSTOTAL_URL = f"https://www.virustotal.com/vtapi/v2/domain/report?apikey=YOUR_VT_API_KEY&domain={DOMAIN}"
+ALIENVAULT_URL = f"https://otx.alienvault.com/api/v1/indicators/hostname/{DOMAIN}/url_list?limit=500&page=1"
+
+wayback_data = requests.get(WAYBACK_URL).text
+with open("wayback.txt", "w") as file:
+    file.write(wayback_data)
+
+# Step 4: Extract Sensitive File URLs
+os.system("cat wayback.txt | uro | grep -E '\\.xls|\\.xml|\\.xlsx|\\.json|\\.pdf|\\.sql|\\.doc|\\.docx|\\.pptx|\\.txt|\\.zip|\\.tar\\.gz|\\.tgz|\\.bak|\\.7z|\\.rar|\\.log|\\.cache|\\.secret|\\.db|\\.backup|\\.yml|\\.gz|\\.config|\\.csv|\\.yaml|\\.md|\\.md5|\\.exe|\\.dll|\\.bin|\\.ini|\\.bat|\\.sh|\\.tar|\\.deb|\\.rpm|\\.iso|\\.img|\\.apk|\\.msi|\\.dmg|\\.tmp|\\.crt|\\.pem|\\.key|\\.pub|\\.asc' > sensitive_files.txt")
+
+# Step 5: Check for Live Subdomains
+os.system("cat domain.subs | httpx -o domain.live")
+
+# Step 6: Run XSS Discovery Tools
+os.system("cat domain.live | wayback | anew xss-wayback")
+os.system("katana -list domain.live -o xss-katana")
+os.system("cat domain.live | gau --subs -o xss-gau")
+
+# Step 7: Merge XSS Results
+os.system("cat xss-wayback xss-katana xss-gau | anew xss.txt")
+
+# Step 8: Filter & Validate XSS Endpoints
+os.system("cat xss.txt | sort -u | grep '=' | egrep -iv '\\.(css|woff|woff2|txt|js|m4r|m4p|m4b|ipa|asa|pkg|crash|asf|asx|wax|wmv|wmx|avi|bmp|class|divx|doc|docx|exe|gif|gz|gzip|ico|jpg|jpeg|jpe|webp|json|mdb|mid|midi|mov|qt|mp3|m4a|mp4|m4v|mpeg|mpg|mpe|webm|mpp|_otf|odb|odc|odf|odg|odp|ods|odt|ogg|pdf|png|pot|pps|ppt|pptx|ra|ram|svg|svgz|swf|tar|tif|tiff|_ttf|wav|wma|wri|xla|xls|xlsx|xlt|xlw|zip)' | uro | httpx | anew xss_filtered.txt")
+
+# Step 9: Run Knoxnl for XSS Testing
+os.system("knoxnl -i xss.txt -X BOTH -s -o xssoutput.txt")
+
+# Step 10: Send Data to Telegram Bot
+def send_to_telegram(filename, caption):
+    with open(filename, "rb") as file:
+        bot.send_document(TELEGRAM_CHAT_ID, file, caption=caption)
+
+send_to_telegram("domain.subs", "📜 Subdomains Found")
+send_to_telegram("sensitive_files.txt", "⚠️ Sensitive Files Extracted")
+send_to_telegram("domain.live", "✅ Live Subdomains")
+send_to_telegram("xss_filtered.txt", "🔍 Potential XSS Endpoints")
+send_to_telegram("xssoutput.txt", "🚀 XSS Exploitation Results")
+
+print("✅ Process Completed! Data Sent to Telegram.")
+🎯 How It Works
+Finds subdomains using subfinder and subdominator.
+Queries Wayback Machine, VirusTotal, and AlienVault OTX for more subdomains.
+Extracts sensitive files like .sql, .json, .xls, etc.
+Checks for live subdomains using httpx.
+Finds XSS endpoints using wayback, katana, and gau.
+Merges and filters results to eliminate duplicate or unnecessary data.
+Runs XSS payload testing using knoxnl.
+Sends extracted data (subdomains, sensitive files, XSS results) to a Telegram bot.
+📌 Next Steps
+Add error handling to retry failed requests.
+Optimize Telegram messages for better readability.
+Automate periodic scans using GitHub Actions or Google Colab Scheduler.

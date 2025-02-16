@@ -1,0 +1,41 @@
+#reNgine - Automated Reconnaissance Framework
+
+#Find more on: https://github.com/yogeshojha/rengine
+
+
+
+
+#Installing Docker on Kali Linux
+
+#sudo apt update
+#sudo apt install -y docker.io
+#sudo systemctl enable docker --now
+#docker
+
+
+#Download the latest stable version of docker-compose
+
+#sudo curl -L "https://github.com/docker/compose/rel... -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+#sudo chmod +x /usr/local/bin/docker-compose
+
+#sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+#docker-compose --version
+
+
+
+
+#https://rengine.wiki/install/detailed/
+
+#git clone https://github.com/yogeshojha/rengine && cd rengine
+
+#sudo make certs
+
+#sudo make build
+
+#sudo make up
+
+#sudo make username
+
+#sudo make logs
