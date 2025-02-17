@@ -3,14 +3,24 @@
 # Initialize variables
 domain=""
 domain_list=""
-api_key="0221c8a3e655673bbc49d7fe876d3645f5a2dad2c3c1fe3cd2fad5e1ee1bf5f9"
+api_key="982680b1787fa59701919aa22515a025e00df1e3bb2bc4f186b8e919558d576c"
+
+# Display usage information
+usage() {
+    echo "Usage: $0 [-u <domain>] [-d <domain_list.txt>] [-h]"
+    echo "  -u <domain>         Perform recon on a single domain"
+    echo "  -d <domain_list.txt> Perform recon on multiple domains from a file"
+    echo "  -h                  Display this help message"
+    exit 0
+}
 
 # Parse command-line arguments
-while getopts "u:d:" opt; do
+while getopts "u:d:h" opt; do
   case ${opt} in
     u ) domain=$OPTARG ;;
     d ) domain_list=$OPTARG ;;
-    * ) echo "Usage: $0 -u <domain> OR -d <domain_list.txt>"; exit 1 ;;
+    h ) usage ;;
+    * ) usage ;;
   esac
 done
 
