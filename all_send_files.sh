@@ -44,4 +44,13 @@ for file in "$DIR"*; do
     fi
 done
 
-echo "All files have been sent to Telegram!"
+# Compress the file
+echo "Compressing file: $FILE..."
+gzip -c "$FILE" > "$COMPRESSED_FILE"
+
+# Send the compressed file to Telegram
+echo "Uploading compressed file: $COMPRESSED_FILE"
+
+curl -F "chat_id=$CHAT_ID" -F document=@"$COMPRESSED_FILE" "https://api.telegram.org/bot$BOT_API_KEY/sendDocument"
+
+echo "File $COMPRESSED_FILE sent successfully!"
